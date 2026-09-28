@@ -1,0 +1,6 @@
+export { runScan } from "./engine/scanner.js";
+export { connect } from "./transports/factory.js";
+export { inventory } from "./engine/inventory.js";
+export { loadConfig, defaultConfig } from "./config/loader.js";
+export { computeScore } from "./report/score.js";
+export type * from "./types.js";

@@ -1,0 +1,39 @@
+{
+  "name": "mcpforge",
+  "version": "0.1.0",
+  "description": "Deterministic security test suite for MCP servers: active payload-based scanning, SARIF/CI-native reporting, validated against a vulnerable reference server.",
+  "type": "module",
+  "license": "MIT",
+  "engines": { "node": ">=18.17.0" },
+  "bin": { "mcpforge": "bin/mcpforge.js" },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": ["dist", "bin", "README.md", "LICENSE"],
+  "scripts": {
+    "build": "tsc",
+    "pretest": "npm run build",
+    "dev": "tsx src/cli.ts",
+    "mcpforge": "tsx src/cli.ts",
+    "test": "vitest run",
+    "test:unit": "vitest run test/unit",
+    "test:e2e": "npm run build && vitest run test/e2e",
+    "lint": "tsc --noEmit",
+    "scan:vulnerable": "npm run build && node dist/cli.js scan --stdio \"node_modules/.bin/tsx test/vulnerable-server/index.ts\" --yes",
+    "scan:safe": "npm run build && node dist/cli.js scan --stdio \"node_modules/.bin/tsx test/safe-server/index.ts\" --yes",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": ["mcp", "model-context-protocol", "security", "scanner", "pentest", "llm", "agents", "sarif", "owasp"],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "cli-table3": "^0.6.5",
+    "commander": "^14.0.0",
+    "picocolors": "^1.1.1",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.0",
+    "vitest": "^3.1.0"
+  }
+}

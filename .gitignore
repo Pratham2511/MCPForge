@@ -1,0 +1,20 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+*.tsbuildinfo
+
+# reports
+mcpforge.sarif
+mcpforge-report.json
+*.log
+
+# editor / OS
+.vscode/
+.idea/
+.DS_Store
+
+# env files (never commit real secrets; the test fixture generates its own)
+.env
+.env.local

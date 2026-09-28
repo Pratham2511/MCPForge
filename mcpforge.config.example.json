@@ -1,0 +1,8 @@
+{
+  "checks": { "prompt-injection": true, "ssrf": true },
+  "failOn": "high",
+  "timeoutMs": 10000,
+  "maxCallsPerTool": 12,
+  "allowTools": ["get_weather"],
+  "output": { "format": "terminal" }
+}
