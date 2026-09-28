@@ -1,15 +1,24 @@
 {
   "name": "mcpforge-cli",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Deterministic security test suite for MCP servers: sends real payloads through live MCP sessions and confirms exploitability from responses. CI-native with SARIF 2.1.0 output for GitHub Code Scanning.",
   "type": "module",
   "license": "MIT",
   "author": "Pratham Pansare <prathampansare9@gmail.com> (https://github.com/Pratham2511)",
-  "engines": { "node": ">=18.17.0" },
-  "bin": { "mcpforge": "bin/mcpforge.js" },
+  "engines": {
+    "node": ">=18.17.0"
+  },
+  "bin": {
+    "mcpforge": "bin/mcpforge.js"
+  },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": ["dist", "bin", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "bin",
+    "README.md",
+    "LICENSE"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Pratham2511/MCPForge.git"
