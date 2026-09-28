@@ -1,16 +1,30 @@
 import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import type { Inventory, ToolInfo, ToolSchemaProperty } from "../types.js";
 
-function parseProperties(schema: Record<string, unknown>): ToolSchemaProperty[] {
-  const props = (schema?.properties ?? {}) as Record<string, any>;
-  const required = new Set<string>((schema?.required as string[]) ?? []);
-  return Object.entries(props).map(([name, def]) => ({
+function parseProperty(name: string, def: any, required: boolean): ToolSchemaProperty {
+  const p: ToolSchemaProperty = {
     name,
     type: String(def?.type ?? "unknown"),
     description: typeof def?.description === "string" ? def.description : undefined,
-    required: required.has(name),
+    required,
     enum: Array.isArray(def?.enum) ? def.enum.map(String) : undefined,
-  }));
+  };
+  if (p.type === "array" && def?.items && typeof def.items === "object") {
+    p.items = parseProperty("(item)", def.items, false);
+  }
+  if (p.type === "object" && def?.properties && typeof def.properties === "object") {
+    const subRequired = new Set<string>((def?.required as string[]) ?? []);
+    p.properties = Object.entries(def.properties).map(([n, d]) =>
+      parseProperty(n, d, subRequired.has(n))
+    );
+  }
+  return p;
+}
+
+function parseProperties(schema: Record<string, unknown>): ToolSchemaProperty[] {
+  const props = (schema?.properties ?? {}) as Record<string, any>;
+  const required = new Set<string>((schema?.required as string[]) ?? []);
+  return Object.entries(props).map(([name, def]) => parseProperty(name, def, required.has(name)));
 }
 
 export async function inventory(client: Client): Promise<Inventory> {

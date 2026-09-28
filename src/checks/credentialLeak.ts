@@ -42,6 +42,16 @@ export async function runCredentialLeak(ctx: ScanContext): Promise<void> {
         }, outcome.text);
       }
     }
+    // 3) active: zero-argument tools are pure response surfaces (e.g. tools that
+    //    dump process.env or diagnostics) — no payload placement exists, so
+    //    invoke each once with {} and scan the response for secret shapes.
+    for (const tool of inv.tools) {
+      if (tool.properties.length > 0) continue;
+      const outcome = await callToolSafe(session.client, tool.name, {}, config.timeoutMs);
+      ctx.countInvocation("credential-leak");
+      if (!outcome.ok || !outcome.text) continue;
+      scanText(ctx, { tool: tool.name, kind: "response (no-argument invocation)" }, outcome.text);
+    }
   }
 }
 

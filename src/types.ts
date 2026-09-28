@@ -26,6 +26,10 @@ export interface ToolSchemaProperty {
   description?: string;
   required: boolean;
   enum?: string[];
+  /** arrays only: parsed JSON-schema of the item type */
+  items?: ToolSchemaProperty;
+  /** objects only: nested property list */
+  properties?: ToolSchemaProperty[];
 }
 
 export interface ToolInfo {
