@@ -1,14 +1,21 @@
 {
-  "name": "mcpforge",
+  "name": "mcpforge-cli",
   "version": "0.1.0",
-  "description": "Deterministic security test suite for MCP servers: active payload-based scanning, SARIF/CI-native reporting, validated against a vulnerable reference server.",
+  "description": "Deterministic security test suite for MCP servers: sends real payloads through live MCP sessions and confirms exploitability from responses. CI-native with SARIF 2.1.0 output for GitHub Code Scanning.",
   "type": "module",
   "license": "MIT",
+  "author": "Pratham Pansare <prathampansare9@gmail.com> (https://github.com/Pratham2511)",
   "engines": { "node": ">=18.17.0" },
   "bin": { "mcpforge": "bin/mcpforge.js" },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": ["dist", "bin", "README.md", "LICENSE"],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Pratham2511/MCPForge.git"
+  },
+  "homepage": "https://github.com/Pratham2511/MCPForge#readme",
+  "bugs": "https://github.com/Pratham2511/MCPForge/issues",
   "scripts": {
     "build": "tsc",
     "pretest": "npm run build",
@@ -20,9 +27,25 @@
     "lint": "tsc --noEmit",
     "scan:vulnerable": "npm run build && node dist/cli.js scan --stdio \"node_modules/.bin/tsx test/vulnerable-server/index.ts\" --yes",
     "scan:safe": "npm run build && node dist/cli.js scan --stdio \"node_modules/.bin/tsx test/safe-server/index.ts\" --yes",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run lint && npm run build"
   },
-  "keywords": ["mcp", "model-context-protocol", "security", "scanner", "pentest", "llm", "agents", "sarif", "owasp"],
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "security",
+    "security-scanner",
+    "dast",
+    "scanner",
+    "pentest",
+    "llm",
+    "ai-agents",
+    "agents",
+    "sarif",
+    "code-scanning",
+    "devsecops",
+    "ci",
+    "owasp"
+  ],
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.0",
     "cli-table3": "^0.6.5",
