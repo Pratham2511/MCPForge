@@ -8,8 +8,10 @@
 
 [![CI](https://github.com/Pratham2511/MCPForge/actions/workflows/ci.yml/badge.svg)](https://github.com/Pratham2511/MCPForge/actions/workflows/ci.yml)
 [![Security (dogfood)](https://github.com/Pratham2511/MCPForge/actions/workflows/security.yml/badge.svg)](https://github.com/Pratham2511/MCPForge/actions/workflows/security.yml)
-[![npm](https://img.shields.io/npm/v/mcpforge)](https://www.npmjs.com/package/mcpforge)
+[![npm](https://img.shields.io/npm/v/mcpforge-cli)](https://www.npmjs.com/package/mcpforge-cli)
+[![Code Scanning](https://img.shields.io/badge/Code%20Scanning-SARIF%202.1.0-blueviolet)](https://github.com/Pratham2511/MCPForge/security/code-scanning)
 [![license](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
+[![Node](https://img.shields.io/badge/node-18%20%7C%2020%20%7C%2022-brightgreen)](./package.json)
 
 ![MCPForge scanning the vulnerable reference server](assets/demo.gif)
 
@@ -40,7 +42,40 @@ exploitability: deterministic payloads through real MCP sessions, SARIF for
 GitHub Code Scanning, exit codes for PR gating, and an accuracy harness that
 gates its own CI on 100% recall / 0 false positives.**
 
-No LLM. No Docker. `npx mcpforge`.
+No LLM. No Docker. `npx mcpforge-cli`.
+
+## Validated against real MCP servers
+
+MCPForge is tested against the official `@modelcontextprotocol` servers people
+actually run — not just its own fixtures. Latest validation run (v0.1.0, full
+active testing):
+
+| Server | Tools | Active invocations | Findings | False positives | Crashes |
+| --- | --: | --: | --: | --: | --: |
+| `server-filesystem` | 14 | 504 | 0 | 0 | 0 |
+| `server-github` | 26 (12 write tools excluded) | 713 | 0 | 0 | 0 |
+| `server-memory` | 9 | 324 | 0 | 0 | 0 |
+| `server-puppeteer` | 7 | 323 | 0 | 0 | 0 |
+| `server-sequential-thinking` | 1 | 58 | 0 | 0 | 0 |
+| `server-everything` | 13 | 245 | 0 | 0 | 0 |
+
+Real-world hardening that came out of this validation (all regression-tested
+in the accuracy harness):
+
+- **Nested schema planning** — tools whose required arguments are arrays or
+  objects (`create_entities(entities: [{name, type, …}])`) now receive
+  schema-shaped payloads; coverage on `server-memory` went **40 → 324 active
+  invocations (+710%)**.
+- **Zero-argument tools** — response-only surfaces (think
+  `printEnvironmentVariables`) are now invoked once and response-scanned for
+  secret shapes; previously a guaranteed miss.
+- **`--allow-tool` enforced** — exclude destructive tools (`create_* push_*
+  delete_* …`) from active testing with exact and `prefix*` wildcard patterns;
+  verified live by scanning the GitHub server with all 12 write tools excluded.
+
+The reference implementations scored clean — which is itself the point: they
+are the ecosystem's hardened baseline, and MCPForge confirms it with hundreds
+of real exploit attempts instead of a lint pass.
 
 ## How it works
 
@@ -101,16 +136,16 @@ and independently disableable.
 
 ```bash
 # stdio target — spawn and scan
-npx mcpforge@latest scan --stdio "node dist/server.js" --yes
+npx mcpforge-cli@latest scan --stdio "node dist/server.js" --yes
 
 # HTTP target (streamable HTTP with automatic SSE fallback)
-npx mcpforge@latest scan --url http://localhost:3000/mcp --yes
+npx mcpforge-cli@latest scan --url http://localhost:3000/mcp --yes
 
 # inventory only — zero tool invocations, static pass only
-npx mcpforge@latest scan --stdio "python -m my_mcp_server" --inventory-only
+npx mcpforge-cli@latest scan --stdio "python -m my_mcp_server" --inventory-only
 
 # CI: SARIF for GitHub Code Scanning + policy exit code
-npx mcpforge@latest scan --stdio "node dist/server.js" \
+npx mcpforge-cli@latest scan --stdio "node dist/server.js" \
   --format sarif -o mcpforge.sarif --fail-on high --yes
 ```
 
@@ -152,7 +187,7 @@ jobs:
         run: npm ci && npm run build        # produces dist/server.js
       - name: MCPForge scan
         run: |
-          npx mcpforge@latest scan \
+          npx mcpforge-cli@latest scan \
             --stdio "node dist/server.js" \
             --format sarif -o mcpforge.sarif --yes
       - name: Upload results to Code Scanning
