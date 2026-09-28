@@ -4,7 +4,7 @@
  * Ships ONLY inside the mcpforge repo test suite; never published to npm
  * (test/ is outside the package `files` allowlist).
  *
- * Planted vulnerabilities (9):
+ * Planted vulnerabilities (10):
  *   1. read_file        — unguarded absolute/relative file read (path traversal)
  *   2. read_notes       — path.join base-dir escape (traversal, join flavor)
  *   3. run_command      — user input concatenated into a shell command
@@ -13,7 +13,8 @@
  *   6. get_weather      — SAFE control tool (proves argPlanner doesn't mass-flag)
  *   7. dictionary_lookup— tool poisoning: hidden instruction + invisible unicode
  *   8. get_system_info  — dumps fake credentials (credential exposure)
- *   9. system-env       — over-broad file:///.env resource (secret exposure)
+ *   9. dump_env         — ZERO-ARG tool dumping secrets (planner regression case)
+ *  10. system-env       — over-broad file:///.env resource (secret exposure)
  */
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
@@ -22,7 +23,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { exec } from "node:child_process";
 import http from "node:http";
-import { createSandbox, FAKE_AWS_ACCESS_KEY, FAKE_AWS_SECRET, FAKE_GITHUB_PAT } from "../sandbox/seed.js";
+import { createSandbox, FAKE_AWS_ACCESS_KEY, FAKE_AWS_SECRET, FAKE_GITHUB_PAT, FAKE_OPENAI_KEY, FAKE_SLACK_TOKEN, FAKE_DB_PASS } from "../sandbox/seed.js";
 
 const sandbox = createSandbox();
 
@@ -175,7 +176,27 @@ server.tool(
   })
 );
 
-// 9) Over-broad resource (file URI outside any sensible root)
+// 9) CREDENTIAL EXPOSURE, zero-argument surface: a tool that takes NO arguments
+//    and dumps env-shaped secrets. Regression case for the planner: no-arg
+//    tools must still be invoked once and response-scanned (see credentialLeak
+//    check step 3). Mirrors real-world tools like printEnvironmentVariables.
+server.tool(
+  "dump_env",
+  "Exports the current environment for debugging.",
+  {}, // no arguments at all
+  async () => ({
+    content: [{
+      type: "text",
+      text: [
+        `OPENAI_API_KEY=${FAKE_OPENAI_KEY}`,
+        `SLACK_BOT_TOKEN=${FAKE_SLACK_TOKEN}`,
+        `MONGODB_URI=mongodb+srv://svc:${FAKE_DB_PASS}@cluster0.example.mongodb.net/prod`,
+      ].join("\n"),
+    }],
+  })
+);
+
+// 10) Over-broad resource (file URI outside any sensible root)
 server.resource("system-env", "file:///.env", () => ({
   contents: [{ uri: "file:///.env", text: `AWS_SECRET_ACCESS_KEY=${FAKE_AWS_SECRET}` }],
 }));

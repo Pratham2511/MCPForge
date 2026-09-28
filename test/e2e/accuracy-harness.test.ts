@@ -97,6 +97,13 @@ describe("accuracy harness (the CI gate)", () => {
       "no confirmed ssrf"
     ).toBe(true);
 
+    // zero-argument response surfaces (e.g. env-dumpers) must still be actively
+    // invoked and response-scanned — regression case for planner v2
+    expect(
+      report.findings.some((f) => f.checkId === "credential-leak" && f.tool === "dump_env"),
+      "zero-argument secret-dumping tool was never actively scanned"
+    ).toBe(true);
+
     expect(report.score.grade).toBe("F");
   }, 200_000);
 

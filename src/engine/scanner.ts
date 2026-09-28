@@ -37,7 +37,19 @@ export async function runScan(
 
   log.info("collecting inventory…");
   const inv = await inventory(session.client);
-  log.info(`inventory: ${inv.tools.length} tools, ${inv.resources.length} resources, ${inv.prompts.length} prompts`);
+  const fullToolCount = inv.tools.length;
+  if (config.allowTools.length > 0) {
+    const before = inv.tools.length;
+    const excluded = inv.tools.filter((t) => isExcluded(t.name, config.allowTools));
+    inv.tools = inv.tools.filter((t) => !isExcluded(t.name, config.allowTools));
+    if (excluded.length > 0) {
+      log.info(`active testing excluded ${excluded.length} tool(s) via allow-tool: ${excluded.map((t) => t.name).join(", ")}`);
+    }
+    if (inv.tools.length === 0 && before > 0) {
+      log.warn("allow-tool excluded every tool; only static checks will run");
+    }
+  }
+  log.info(`inventory: ${inv.tools.length} tools (${fullToolCount - inv.tools.length} excluded), ${inv.resources.length} resources, ${inv.prompts.length} prompts`);
 
   const findings: Finding[] = [];
   const results = new Map<CheckId, CheckResult>();
@@ -102,6 +114,14 @@ function dedupe(fs: Finding[]): Finding[] {
     if (!seen.has(f.fingerprint)) { seen.add(f.fingerprint); out.push(f); }
   }
   return out.sort(bySeverity);
+}
+
+/** allow-tool semantics: exact name, or `prefix*` wildcard (e.g. "create_*"). */
+export function isExcluded(name: string, patterns: string[]): boolean {
+  return patterns.some((p) => {
+    if (p.endsWith("*")) return name.startsWith(p.slice(0, -1));
+    return name === p;
+  });
 }
 
 const SEV_ORDER: Record<string, number> = { critical: 0, high: 1, medium: 2, low: 3, info: 4 };
