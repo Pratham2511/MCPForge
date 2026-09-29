@@ -11,7 +11,7 @@
 [![npm](https://img.shields.io/npm/v/mcpveil-cli)](https://www.npmjs.com/package/mcpveil-cli)
 [![Code Scanning](https://img.shields.io/badge/Code%20Scanning-SARIF%202.1.0-blueviolet)](https://github.com/Pratham2511/MCPVeil/security/code-scanning)
 [![license](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
-[![Node](https://img.shields.io/badge/node-18%20%7C%2020%20%7C%2022-brightgreen)](./package.json)
+[![Node](https://img.shields.io/badge/node-20%20%7C%2022-brightgreen)](./package.json)
 
 ![MCPVeil scanning the vulnerable reference server](assets/demo.gif)
 
@@ -134,12 +134,24 @@ and independently disableable.
 
 ## Quickstart
 
+MCPVeil is the scanner; it does not start the MCP server being tested. Start your MCP server first, keep it running, then run the scanner in a second terminal. Stop the server with `Ctrl+C` when the scan finishes.
+
 ```bash
+# verify the installed CLI
+npx mcpveil-cli@latest --version
+
+# stdio target — MCPVeil starts the target for this scan
+npx mcpveil-cli@latest scan --stdio "node dist/server.js" --yes
+
+# HTTP target — start your server first in another terminal, then scan its MCP endpoint
+node dist/server.js
+npx mcpveil-cli@latest scan --url http://127.0.0.1:3000/mcp --yes
+
 # stdio target — spawn and scan
 npx mcpveil-cli@latest scan --stdio "node dist/server.js" --yes
 
 # HTTP target (streamable HTTP with automatic SSE fallback)
-npx mcpveil-cli@latest scan --url http://localhost:3000/mcp --yes
+npx mcpveil-cli@latest scan --url http://127.0.0.1:3000/mcp --yes
 
 # inventory only — zero tool invocations, static pass only
 npx mcpveil-cli@latest scan --stdio "python -m my_mcp_server" --inventory-only
