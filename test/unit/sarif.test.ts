@@ -37,13 +37,13 @@ const report = {
   ],
   findings: [finding],
   score: { value: 80, grade: "B" as const },
-  mcpforgeVersion: "0.1.0",
+  mcpveilVersion: "0.1.0",
 } as unknown as ScanReport;
 
 it("produces parseable SARIF 2.1.0", () => {
   const sarif = JSON.parse(renderSarif(report));
   expect(sarif.version).toBe("2.1.0");
-  expect(sarif.runs[0].tool.driver.name).toBe("MCPForge");
+  expect(sarif.runs[0].tool.driver.name).toBe("MCPVeil");
 });
 
 it("maps every finding to a rule with a location", () => {
