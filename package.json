@@ -6,7 +6,7 @@
   "license": "MIT",
   "author": "Pratham Pansare <prathampansare9@gmail.com> (https://github.com/Pratham2511)",
   "engines": {
-    "node": ">=18.17.0"
+    "node": ">=20.0.0"
   },
   "bin": {
     "mcpveil": "bin/mcpveil.js"
@@ -66,6 +66,6 @@
     "@types/node": "^26.6.2",
     "tsx": "^4.19.0",
     "typescript": "^7.0.2",
-    "vitest": "^3.2.7"
+    "vitest": "^4.1.11"
   }
 }
