@@ -55,7 +55,7 @@ it("maps every finding to a rule with a location", () => {
   expect(sarif.runs[0].results[0].locations[0].physicalLocation.artifactLocation.uri).toBe("mcp://tool/read_file");
 });
 
-it("carries the mcpforge fingerprint for baseline suppression", () => {
+it("carries the mcpveil fingerprint for baseline suppression", () => {
   const sarif = JSON.parse(renderSarif(report));
   expect(sarif.runs[0].results[0].properties.fingerprint).toBe(finding.fingerprint);
 });

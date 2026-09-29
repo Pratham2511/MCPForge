@@ -8,7 +8,7 @@
 
 [![CI](https://github.com/Pratham2511/MCPVeil/actions/workflows/ci.yml/badge.svg)](https://github.com/Pratham2511/MCPVeil/actions/workflows/ci.yml)
 [![Security (dogfood)](https://github.com/Pratham2511/MCPVeil/actions/workflows/security.yml/badge.svg)](https://github.com/Pratham2511/MCPVeil/actions/workflows/security.yml)
-[![npm](https://img.shields.io/npm/v/mcpforge-cli)](https://www.npmjs.com/package/mcpforge-cli)
+[![npm](https://img.shields.io/npm/v/mcpveil-cli)](https://www.npmjs.com/package/mcpveil-cli)
 [![Code Scanning](https://img.shields.io/badge/Code%20Scanning-SARIF%202.1.0-blueviolet)](https://github.com/Pratham2511/MCPVeil/security/code-scanning)
 [![license](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
 [![Node](https://img.shields.io/badge/node-18%20%7C%2020%20%7C%2022-brightgreen)](./package.json)
@@ -42,7 +42,7 @@ exploitability: deterministic payloads through real MCP sessions, SARIF for
 GitHub Code Scanning, exit codes for PR gating, and an accuracy harness that
 gates its own CI on 100% recall / 0 false positives.**
 
-No LLM. No Docker. `npx mcpforge-cli`.
+No LLM. No Docker. `npx mcpveil-cli`.
 
 ## Validated against real MCP servers
 
@@ -136,17 +136,17 @@ and independently disableable.
 
 ```bash
 # stdio target — spawn and scan
-npx mcpforge-cli@latest scan --stdio "node dist/server.js" --yes
+npx mcpveil-cli@latest scan --stdio "node dist/server.js" --yes
 
 # HTTP target (streamable HTTP with automatic SSE fallback)
-npx mcpforge-cli@latest scan --url http://localhost:3000/mcp --yes
+npx mcpveil-cli@latest scan --url http://localhost:3000/mcp --yes
 
 # inventory only — zero tool invocations, static pass only
-npx mcpforge-cli@latest scan --stdio "python -m my_mcp_server" --inventory-only
+npx mcpveil-cli@latest scan --stdio "python -m my_mcp_server" --inventory-only
 
 # CI: SARIF for GitHub Code Scanning + policy exit code
-npx mcpforge-cli@latest scan --stdio "node dist/server.js" \
-  --format sarif -o mcpforge.sarif --fail-on high --yes
+npx mcpveil-cli@latest scan --stdio "node dist/server.js" \
+  --format sarif -o mcpveil.sarif --fail-on high --yes
 ```
 
 **Exit-code contract** (stable, CI-consumable):
@@ -174,7 +174,7 @@ on:
   push: { branches: [main] }
 
 jobs:
-  mcpforge:
+  mcpveil:
     runs-on: ubuntu-latest
     permissions:
       security-events: write
@@ -187,12 +187,12 @@ jobs:
         run: npm ci && npm run build        # produces dist/server.js
       - name: MCPVeil scan
         run: |
-          npx mcpforge-cli@latest scan \
+          npx mcpveil-cli@latest scan \
             --stdio "node dist/server.js" \
-            --format sarif -o mcpforge.sarif --yes
+            --format sarif -o mcpveil.sarif --yes
       - name: Upload results to Code Scanning
         uses: github/codeql-action/upload-sarif@v3
-        with: { sarif_file: mcpforge.sarif }
+        with: { sarif_file: mcpveil.sarif }
 ```
 
 - `--fail-on high` blocks PRs with high/critical findings; `--fail-on medium`
@@ -250,8 +250,8 @@ Posture score: 0/100 (grade F)   → exit 1
 
 ## Configuration
 
-CLI flags override `mcpforge.config.json` (see
-[mcpforge.config.example.json](mcpforge.config.example.json)):
+CLI flags override `mcpveil.config.json` (see
+[mcpveil.config.example.json](mcpveil.config.example.json)):
 
 ```jsonc
 {
@@ -272,7 +272,7 @@ CLI: `--stdio`, `--url`, `--transport`, `--format`, `-o`, `--fail-on`,
 Programmatic API:
 
 ```ts
-import { runScan, connect } from "mcpforge";
+import { runScan, connect } from "mcpveil";
 
 const session = await connect({ kind: "stdio", command: ["node", "dist/server.js"] });
 const report = await runScan(session.client, target, config);
@@ -311,7 +311,7 @@ persistent-concatenation SQLi class highlighted in the January 2026
 PRs welcome — the fastest way to help is a **payload pack** (labeled
 `good-first-issue`): see [CONTRIBUTING.md](CONTRIBUTING.md) for the
 echo-safety and non-destructiveness rules, and [ROADMAP.md](ROADMAP.md) for
-what's next (baselines, tool-drift detection, `mcpforge bench`).
+what's next (baselines, tool-drift detection, `mcpveil bench`).
 
 ## License & ethics
 

@@ -27,7 +27,7 @@ is requested).
 
 In scope:
 
-- The `mcpforge` CLI, its transports, checks, and reporters.
+- The `mcpveil` CLI, its transports, checks, and reporters.
 - Generated artifacts (JSON / SARIF output) — e.g. injection of attacker-controlled
   strings into reports.
 - The GitHub Actions workflows in this repository.
